@@ -3,6 +3,7 @@ pipeline {
 
     environment {
         IMAGE_NAME = "devops-app"
+        DOCKER_REPO = "sagarkhera/devops-app"
         SONAR_HOST_URL = "http://localhost:9000"
     }
 
@@ -43,7 +44,6 @@ pipeline {
             }
         }
 
-        // 🔥 THIS IS THE IMPORTANT ADDITION
         stage('Quality Gate') {
             steps {
                 waitForQualityGate abortPipeline: true
@@ -59,6 +59,27 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 sh 'docker build -t $IMAGE_NAME .'
+            }
+        }
+
+        // 🔥 Secure Docker Hub push
+        stage('Push to Docker Hub') {
+            steps {
+                withCredentials([usernamePassword(
+                    credentialsId: 'docker-creds',
+                    usernameVariable: 'DOCKER_USER',
+                    passwordVariable: 'DOCKER_PASS'
+                )]) {
+                    sh '''
+                    echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin
+
+                    docker tag $IMAGE_NAME $DOCKER_REPO:latest
+                    docker tag $IMAGE_NAME $DOCKER_REPO:v1.0
+
+                    docker push $DOCKER_REPO:latest
+                    docker push $DOCKER_REPO:v1.0
+                    '''
+                }
             }
         }
 
@@ -88,7 +109,7 @@ pipeline {
         success {
             emailext (
                 subject: "SUCCESS: ${env.JOB_NAME}",
-                body: "Build succeeded successfully 🚀",
+                body: "Build, Scan, and Docker Push completed successfully 🚀",
                 to: "kherasagar21@gmail.com"
             )
         }
