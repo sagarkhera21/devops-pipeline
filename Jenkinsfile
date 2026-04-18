@@ -43,6 +43,13 @@ pipeline {
             }
         }
 
+        // 🔥 THIS IS THE IMPORTANT ADDITION
+        stage('Quality Gate') {
+            steps {
+                waitForQualityGate abortPipeline: true
+            }
+        }
+
         stage('Security Scan') {
             steps {
                 sh 'trivy fs --scanners vuln . || true'
