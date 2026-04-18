@@ -3,9 +3,16 @@ pipeline {
 
     environment {
         IMAGE_NAME = "devops-app"
+        SONAR_HOST_URL = "http://localhost:9000"
     }
 
     stages {
+
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
 
         stage('Build') {
             steps {
@@ -19,15 +26,23 @@ pipeline {
             }
         }
 
-        stage('Code Quality') {
+        stage('Code Quality - SonarQube') {
             steps {
-                echo 'Code Quality Check (SonarQube placeholder)'
+                withSonarQubeEnv('sonarqube') {
+                    sh """
+                    sonar-scanner \
+                    -Dsonar.projectKey=devops-app \
+                    -Dsonar.sources=. \
+                    -Dsonar.host.url=$SONAR_HOST_URL \
+                    -Dsonar.login=$SONAR_AUTH_TOKEN
+                    """
+                }
             }
         }
 
-        stage('Security') {
+        stage('Security Scan') {
             steps {
-                sh 'trivy fs . || true'
+                sh 'trivy fs --scanners vuln . || true'
             }
         }
 
@@ -39,21 +54,24 @@ pipeline {
 
         stage('Deploy') {
             steps {
-                sh 'docker rm -f $IMAGE_NAME || true'
-                sh 'docker run -d --name $IMAGE_NAME -p 3000:3000 $IMAGE_NAME'
+                sh 'docker rm -f devops-app || true'
+                sh 'docker run -d --name devops-app -p 3000:3000 $IMAGE_NAME'
             }
         }
 
         stage('Release') {
             steps {
-                sh 'echo "Release version 1.0"'
+                sh 'git tag v1.0 || true'
+                sh 'git push origin v1.0 || true'
             }
         }
 
         stage('Monitoring') {
             steps {
                 sh 'docker ps'
+                sh 'docker logs devops-app || true'
             }
         }
     }
 }
+
