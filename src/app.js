@@ -18,6 +18,15 @@ app.get('/health', (req, res) => {
   res.status(200).json({ status: 'UP' });
 });
 
+// Metrics endpoint
+app.get('/metrics', (req, res) => {
+  res.status(200).json({
+    uptime: process.uptime(),
+    memoryUsage: process.memoryUsage(),
+    timestamp: Date.now()
+  });
+});
+
 // Interactive counter endpoint
 let counterObj = { count: 0 };
 app.get('/api/counter', (req, res) => {
