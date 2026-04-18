@@ -77,5 +77,20 @@ pipeline {
         }
     }
 }
-////s
-/////////
+
+post {
+    success {
+        emailext (
+            subject: "SUCCESS: Pipeline ${env.JOB_NAME}",
+            body: "Build succeeded!",
+            to: "kherasagar21@gmail.com"
+        )
+    }
+    failure {
+        emailext (
+            subject: "FAILED: Pipeline ${env.JOB_NAME}",
+            body: "Build failed. Check Jenkins.",
+            to: "kherasagar21@gmail.com"
+        )
+    }
+}
