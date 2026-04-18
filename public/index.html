@@ -210,6 +210,7 @@
                     resultBox.innerHTML = '🔴 <span style="color: #ef4444;">System is DOWN</span>';
                 }
             } catch (error) {
+                console.error("Health check failed:", error);
                 resultBox.innerHTML = '🔴 <span style="color: #ef4444;">Connection failed</span>';
             } finally {
                 btn.style.opacity = '1';
@@ -231,19 +232,22 @@
                 // Clear and recreate element to trigger CSS animation
                 resultBox.innerHTML = `Current Count: <span class="count-pop">${data.count}</span>`;
             } catch (error) {
+                console.error("Counter increment failed:", error);
                 resultBox.innerHTML = '<span style="color: #ef4444;">Failed to fetch</span>';
             }
         }
         
         // Fetch original count on load silently without animating
-        window.addEventListener('DOMContentLoaded', async () => {
+        globalThis.addEventListener('DOMContentLoaded', async () => {
              try {
                 // Note: The first call increments it to 1, but for a real app we might have a separate GET /count vs POS T/increment 
                 // Since requirements asked for simple /api/counter that increments, we'll leave it as is.
                 const response = await fetch('/api/counter');
                 const data = await response.json();
                 document.getElementById('counterResult').innerHTML = `Current Count: <span style="color: #38bdf8; font-weight: bold;">${data.count}</span>`;
-            } catch(e) {}
+            } catch (e) {
+                console.error("Failed to fetch initial count:", e);
+            }
         });
     </script>
 </body>
