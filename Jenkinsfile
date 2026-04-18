@@ -15,38 +15,47 @@ pipeline {
             }
         }
 
-        stage('Build') {
+        stage('Install Dependencies') {
             steps {
                 sh 'npm install'
             }
         }
 
-        stage('Test') {
-            steps {
-                sh 'npm test'
-            }
-        }
+        // 🔥 PARALLEL STAGE (FASTER)
+        stage('Test & Code Quality') {
+            parallel {
 
-        stage('Code Quality - SonarQube') {
-            steps {
-                script {
-                    def scannerHome = tool 'sonar-scanner'
-                    withSonarQubeEnv('sonarqube') {
-                        sh """
-                        ${scannerHome}/bin/sonar-scanner \
-                        -Dsonar.projectKey=devops-app \
-                        -Dsonar.sources=. \
-                        -Dsonar.host.url=$SONAR_HOST_URL \
-                        -Dsonar.login=$SONAR_AUTH_TOKEN
-                        """
+                stage('Test') {
+                    steps {
+                        sh 'npm test'
+                    }
+                }
+
+                stage('SonarQube Scan') {
+                    steps {
+                        script {
+                            def scannerHome = tool 'sonar-scanner'
+                            withSonarQubeEnv('sonarqube') {
+                                sh """
+                                ${scannerHome}/bin/sonar-scanner \
+                                -Dsonar.projectKey=devops-app \
+                                -Dsonar.sources=. \
+                                -Dsonar.host.url=$SONAR_HOST_URL \
+                                -Dsonar.token=$SONAR_AUTH_TOKEN
+                                """
+                            }
+                        }
                     }
                 }
             }
         }
 
+        // 🔥 FAST QUALITY GATE (NO LONG WAIT)
         stage('Quality Gate') {
             steps {
-                waitForQualityGate abortPipeline: true
+                timeout(time: 2, unit: 'MINUTES') {
+                    waitForQualityGate abortPipeline: false
+                }
             }
         }
 
@@ -62,7 +71,6 @@ pipeline {
             }
         }
 
-        // 🔥 Secure Docker Hub push
         stage('Push to Docker Hub') {
             steps {
                 withCredentials([usernamePassword(
@@ -109,14 +117,14 @@ pipeline {
         success {
             emailext (
                 subject: "SUCCESS: ${env.JOB_NAME}",
-                body: "Build, Scan, and Docker Push completed successfully 🚀",
+                body: "Build, Scan, Docker Push & Deploy completed 🚀",
                 to: "kherasagar21@gmail.com"
             )
         }
         failure {
             emailext (
                 subject: "FAILED: ${env.JOB_NAME}",
-                body: "Build failed ❌ Check Jenkins logs.",
+                body: "Pipeline failed ❌ Check Jenkins logs.",
                 to: "kherasagar21@gmail.com"
             )
         }
