@@ -124,6 +124,15 @@
             box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.4);
         }
 
+        .btn-metrics {
+            background: #8b5cf6;
+        }
+
+        .btn-metrics:hover {
+            background: #7c3aed;
+            box-shadow: 0 10px 15px -3px rgba(139, 92, 246, 0.4);
+        }
+
         .result-box {
             background: rgba(0, 0, 0, 0.2);
             padding: 1rem;
@@ -205,6 +214,16 @@
                 <div class="result-box" id="counterResult">Current Count: 0</div>
             </div>
 
+            <div class="interaction-card">
+                <button class="btn-metrics" id="metricsBtn" onclick="loadMetrics()">
+                    Show Metrics
+                </button>
+                <div class="result-box" id="metricsBox" style="flex-direction: column; align-items: center; gap: 0.25rem;">
+                    <div style="font-size: 0.9rem;">Uptime: <span id="uptime" style="color: #38bdf8; font-weight: bold;">--</span></div>
+                    <div style="font-size: 0.9rem;">Memory: <span id="memory" style="color: #10b981; font-weight: bold;">--</span></div>
+                </div>
+            </div>
+
         </div>
     </div>
 
@@ -253,6 +272,22 @@
             } catch (error) {
                 console.error("Counter increment failed:", error);
                 resultBox.innerHTML = '<span style="color: #ef4444;">Failed to fetch</span>';
+            }
+        }
+
+        async function loadMetrics() {
+            const btn = document.getElementById('metricsBtn');
+            btn.classList.add('pulse');
+            setTimeout(() => btn.classList.remove('pulse'), 300);
+
+            try {
+                const res = await fetch('/metrics');
+                const data = await res.json();
+              
+                document.getElementById('uptime').innerText = data.uptime.toFixed(1) + " sec";
+                document.getElementById('memory').innerText = Math.round(data.memoryUsage.heapUsed / 1024 / 1024) + " MB";
+            } catch (error) {
+                console.error("Failed to load metrics:", error);
             }
         }
 
