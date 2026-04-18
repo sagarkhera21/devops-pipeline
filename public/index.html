@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -28,10 +29,10 @@
             align-items: center;
             justify-content: center;
             min-height: 100vh;
-            background-image: 
-                radial-gradient(at 40% 20%, hsla(228,100%,74%,0.15) 0px, transparent 50%),
-                radial-gradient(at 80% 0%, hsla(189,100%,56%,0.15) 0px, transparent 50%),
-                radial-gradient(at 0% 50%, hsla(355,100%,93%,0.1) 0px, transparent 50%);
+            background-image:
+                radial-gradient(at 40% 20%, hsla(228, 100%, 74%, 0.15) 0px, transparent 50%),
+                radial-gradient(at 80% 0%, hsla(189, 100%, 56%, 0.15) 0px, transparent 50%),
+                radial-gradient(at 0% 50%, hsla(355, 100%, 93%, 0.1) 0px, transparent 50%);
         }
 
         .container {
@@ -142,9 +143,17 @@
         }
 
         @keyframes pulse-animation {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
+            0% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.05);
+            }
+
+            100% {
+                transform: scale(1);
+            }
         }
 
         /* Number rolling animation classes */
@@ -157,21 +166,31 @@
         }
 
         @keyframes pop {
-            0% { transform: scale(0.5); opacity: 0; }
-            50% { transform: scale(1.4); }
-            100% { transform: scale(1); opacity: 1; }
-        }
+            0% {
+                transform: scale(0.5);
+                opacity: 0;
+            }
 
+            50% {
+                transform: scale(1.4);
+            }
+
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
     </style>
 </head>
+
 <body>
 
     <div class="container">
         <h1>DevOps API Hub</h1>
         <p class="subtitle">Interactive dashboard demonstrating REST API integrations for the CI/CD pipeline.</p>
-        
+
         <div class="card-grid">
-            
+
             <div class="interaction-card">
                 <button class="btn-health" id="healthBtn" onclick="checkHealth()">
                     Check System Health
@@ -193,17 +212,17 @@
         async function checkHealth() {
             const resultBox = document.getElementById('healthResult');
             const btn = document.getElementById('healthBtn');
-            
+
             resultBox.innerHTML = '<span style="color: #94a3b8;">Checking...</span>';
             btn.style.opacity = '0.7';
-            
+
             try {
                 // adding a tiny artificial delay for visual feedback
                 await new Promise(r => setTimeout(r, 400));
-                
+
                 const response = await fetch('/health');
                 const data = await response.json();
-                
+
                 if (data.status === 'UP') {
                     resultBox.innerHTML = '🟢 <span style="color: #10b981; font-weight: bold;">System is UP</span>';
                 } else {
@@ -220,7 +239,7 @@
         async function incrementCounter() {
             const resultBox = document.getElementById('counterResult');
             const btn = document.getElementById('counterBtn');
-            
+
             // Add a little interaction feel
             btn.classList.add('pulse');
             setTimeout(() => btn.classList.remove('pulse'), 300);
@@ -228,7 +247,7 @@
             try {
                 const response = await fetch('/api/counter');
                 const data = await response.json();
-                
+
                 // Clear and recreate element to trigger CSS animation
                 resultBox.innerHTML = `Current Count: <span class="count-pop">${data.count}</span>`;
             } catch (error) {
@@ -236,10 +255,10 @@
                 resultBox.innerHTML = '<span style="color: #ef4444;">Failed to fetch</span>';
             }
         }
-        
+
         // Fetch original count on load silently without animating
         globalThis.addEventListener('DOMContentLoaded', async () => {
-             try {
+            try {
                 // Note: The first call increments it to 1, but for a real app we might have a separate GET /count vs POS T/increment 
                 // Since requirements asked for simple /api/counter that increments, we'll leave it as is.
                 const response = await fetch('/api/counter');
@@ -251,4 +270,5 @@
         });
     </script>
 </body>
+
 </html>
