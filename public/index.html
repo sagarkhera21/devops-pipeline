@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DevOps Demo App</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
+
+        :root {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --accent-blue: #3b82f6;
+            --accent-blue-hover: #2563eb;
+            --accent-green: #10b981;
+            --accent-green-hover: #059669;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background-image: 
+                radial-gradient(at 40% 20%, hsla(228,100%,74%,0.15) 0px, transparent 50%),
+                radial-gradient(at 80% 0%, hsla(189,100%,56%,0.15) 0px, transparent 50%),
+                radial-gradient(at 0% 50%, hsla(355,100%,93%,0.1) 0px, transparent 50%);
+        }
+
+        .container {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 24px;
+            padding: 3rem;
+            width: 100%;
+            max-width: 480px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            text-align: center;
+            transform: translateY(0);
+            transition: transform 0.4s ease, box-shadow 0.4s ease;
+        }
+
+        .container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.6);
+        }
+
+        h1 {
+            font-size: 2.25rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #60a5fa 0%, #a78bfa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        p.subtitle {
+            color: var(--text-secondary);
+            margin-bottom: 2.5rem;
+            line-height: 1.6;
+        }
+
+        .card-grid {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .interaction-card {
+            background: rgba(15, 23, 42, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .interaction-card:hover {
+            border-color: rgba(255, 255, 255, 0.15);
+            background: rgba(15, 23, 42, 0.8);
+        }
+
+        button {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            color: white;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        button:active {
+            transform: scale(0.97);
+        }
+
+        .btn-health {
+            background: var(--accent-green);
+        }
+
+        .btn-health:hover {
+            background: var(--accent-green-hover);
+        }
+
+        .btn-counter {
+            background: var(--accent-blue);
+        }
+
+        .btn-counter:hover {
+            background: var(--accent-blue-hover);
+            box-shadow: 0 10px 15px -3px rgba(59, 130, 246, 0.4);
+        }
+
+        .result-box {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 1rem;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 0.95rem;
+            min-height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #cbd5e1;
+            box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.06);
+        }
+
+        .pulse {
+            animation: pulse-animation 2s infinite;
+        }
+
+        @keyframes pulse-animation {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        /* Number rolling animation classes */
+        .count-pop {
+            display: inline-block;
+            animation: pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            color: #38bdf8;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        @keyframes pop {
+            0% { transform: scale(0.5); opacity: 0; }
+            50% { transform: scale(1.4); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>DevOps API Hub</h1>
+        <p class="subtitle">Interactive dashboard demonstrating REST API integrations for the CI/CD pipeline.</p>
+        
+        <div class="card-grid">
+            
+            <div class="interaction-card">
+                <button class="btn-health" id="healthBtn" onclick="checkHealth()">
+                    Check System Health
+                </button>
+                <div class="result-box" id="healthResult">Ready</div>
+            </div>
+
+            <div class="interaction-card">
+                <button class="btn-counter" id="counterBtn" onclick="incrementCounter()">
+                    Increment Counter
+                </button>
+                <div class="result-box" id="counterResult">Current Count: 0</div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        async function checkHealth() {
+            const resultBox = document.getElementById('healthResult');
+            const btn = document.getElementById('healthBtn');
+            
+            resultBox.innerHTML = '<span style="color: #94a3b8;">Checking...</span>';
+            btn.style.opacity = '0.7';
+            
+            try {
+                // adding a tiny artificial delay for visual feedback
+                await new Promise(r => setTimeout(r, 400));
+                
+                const response = await fetch('/health');
+                const data = await response.json();
+                
+                if (data.status === 'UP') {
+                    resultBox.innerHTML = '🟢 <span style="color: #10b981; font-weight: bold;">System is UP</span>';
+                } else {
+                    resultBox.innerHTML = '🔴 <span style="color: #ef4444;">System is DOWN</span>';
+                }
+            } catch (error) {
+                resultBox.innerHTML = '🔴 <span style="color: #ef4444;">Connection failed</span>';
+            } finally {
+                btn.style.opacity = '1';
+            }
+        }
+
+        async function incrementCounter() {
+            const resultBox = document.getElementById('counterResult');
+            const btn = document.getElementById('counterBtn');
+            
+            // Add a little interaction feel
+            btn.classList.add('pulse');
+            setTimeout(() => btn.classList.remove('pulse'), 300);
+
+            try {
+                const response = await fetch('/api/counter');
+                const data = await response.json();
+                
+                // Clear and recreate element to trigger CSS animation
+                resultBox.innerHTML = `Current Count: <span class="count-pop">${data.count}</span>`;
+            } catch (error) {
+                resultBox.innerHTML = '<span style="color: #ef4444;">Failed to fetch</span>';
+            }
+        }
+        
+        // Fetch original count on load silently without animating
+        window.addEventListener('DOMContentLoaded', async () => {
+             try {
+                // Note: The first call increments it to 1, but for a real app we might have a separate GET /count vs POS T/increment 
+                // Since requirements asked for simple /api/counter that increments, we'll leave it as is.
+                const response = await fetch('/api/counter');
+                const data = await response.json();
+                document.getElementById('counterResult').innerHTML = `Current Count: <span style="color: #38bdf8; font-weight: bold;">${data.count}</span>`;
+            } catch(e) {}
+        });
+    </script>
+</body>
+</html>
