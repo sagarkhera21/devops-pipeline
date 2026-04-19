@@ -21,7 +21,6 @@ pipeline {
             }
         }
 
-        // 🔥 PARALLEL STAGE (FASTER)
         stage('Test & Code Quality') {
             parallel {
 
@@ -50,7 +49,6 @@ pipeline {
             }
         }
 
-        // 🔥 FAST QUALITY GATE (NO LONG WAIT)
         stage('Quality Gate') {
             steps {
                 timeout(time: 2, unit: 'MINUTES') {
@@ -61,7 +59,7 @@ pipeline {
 
         stage('Security Scan') {
             steps {
-               sh 'trivy fs --severity HIGH,CRITICAL --exit-code 1 .'
+                sh 'trivy fs --severity HIGH,CRITICAL --exit-code 1 .'
             }
         }
 
@@ -91,10 +89,24 @@ pipeline {
             }
         }
 
+        // 🔥 DEPLOY WITH ROLLBACK
         stage('Deploy') {
             steps {
-                sh 'docker rm -f devops-app || true'
-                sh 'docker run -d --name devops-app -p 3000:3000 $IMAGE_NAME'
+                script {
+                    try {
+                        sh 'docker rm -f devops-app || true'
+                        sh 'docker run -d --name devops-app -p 3000:3000 $IMAGE_NAME'
+                    } catch (err) {
+                        echo "Deployment failed! Rolling back..."
+
+                        sh '''
+                        docker rm -f devops-app || true
+                        docker run -d --name devops-app -p 3000:3000 sagarkhera/devops-app:v1.0
+                        '''
+
+                        error("Deployment failed, rollback executed")
+                    }
+                }
             }
         }
 
