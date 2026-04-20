@@ -21,29 +21,26 @@ pipeline {
             }
         }
 
-        stage('Test & Code Quality') {
-            parallel {
+        stage('Test & Coverage') {
+            steps {
+                sh 'npm test'
+            }
+        }
 
-                stage('Test') {
-                    steps {
-                        sh 'npm test'
-                    }
-                }
-
-                stage('SonarQube Scan') {
-                    steps {
-                        script {
-                            def scannerHome = tool 'sonar-scanner'
-                            withSonarQubeEnv('sonarqube') {
-                                sh """
-                                ${scannerHome}/bin/sonar-scanner \
-                                -Dsonar.projectKey=devops-app \
-                                -Dsonar.sources=. \
-                                -Dsonar.host.url=$SONAR_HOST_URL \
-                                -Dsonar.token=$SONAR_AUTH_TOKEN
-                                """
-                            }
-                        }
+        stage('SonarQube Scan') {
+            steps {
+                script {
+                    def scannerHome = tool 'sonar-scanner'
+                    withSonarQubeEnv('sonarqube') {
+                        sh """
+                        ${scannerHome}/bin/sonar-scanner \
+                        -Dsonar.projectKey=devops-app \
+                        -Dsonar.sources=src,utils \
+                        -Dsonar.tests=tests \
+                        -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info \
+                        -Dsonar.host.url=$SONAR_HOST_URL \
+                        -Dsonar.token=$SONAR_AUTH_TOKEN
+                        """
                     }
                 }
             }
