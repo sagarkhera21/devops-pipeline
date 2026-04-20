@@ -281,7 +281,7 @@
             setTimeout(() => btn.classList.remove('pulse'), 300);
 
             try {
-                const res = await fetch('/metrics');
+                const res = await fetch('/api/metrics');
                 const data = await res.json();
               
                 document.getElementById('uptime').innerText = data.uptime.toFixed(1) + " sec";
